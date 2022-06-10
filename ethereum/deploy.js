@@ -1,8 +1,9 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const Web3 = require("web3");
+const fs = require("fs-extra");
+const path = require("path");
 
 const compiledFactory = require("./build/CampaignFactory.json");
-const fs = require("fs-extra");
 
 const provider = new HDWalletProvider(
   "tennis cross exact piece dentist later fit salmon tree bar rib merit",
@@ -11,8 +12,10 @@ const provider = new HDWalletProvider(
 const web3 = new Web3(provider);
 
 function write(contract) {
-  fs.writeFileSync(
-    "../contractData.js",
+  const contractData = path.resolve(__dirname, "..", "contractData.js");
+  fs.removeSync(contractData);
+  fs.outputFileSync(
+    contractData,
     `export const abi = ${compiledFactory.interface}\nexport const FactoryContractAddress = "${contract}"`
   );
   console.log("written");

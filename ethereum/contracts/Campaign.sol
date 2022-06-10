@@ -28,6 +28,7 @@ contract Campaign {
     uint256 public minimumContribution;
     mapping(address => bool) public approvers;
     uint256 public approversCount;
+    uint256 public totalAmount;
 
     modifier restricted() {
         require(msg.sender == manager);
@@ -41,7 +42,7 @@ contract Campaign {
 
     function contribute() public payable {
         require(msg.value > minimumContribution);
-
+        totalAmount += msg.value;
         approvers[msg.sender] = true;
         approversCount++;
     }
@@ -79,6 +80,31 @@ contract Campaign {
         require(!request.complete);
 
         request.recipient.transfer(request.value);
+        totalAmount -= request.value;
         request.complete = true;
+    }
+
+    function getSummary()
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            address
+        )
+    {
+        return (
+            totalAmount,
+            minimumContribution,
+            requests.length,
+            approversCount,
+            manager
+        );
+    }
+
+    function getRequestCount() public view returns (uint256) {
+        return requests.length;
     }
 }
